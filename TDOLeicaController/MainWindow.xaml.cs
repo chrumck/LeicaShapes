@@ -29,6 +29,7 @@ namespace TDOLeicaController
         private AppUtilities appUtilities;
         private AppBackgroundTask appBackgroundTask;
         private AppMainService appMainService;
+        private AppComPort appPort;
 
 
         //Constructors---------------------------------------------------------------------------------------------------------//
@@ -39,7 +40,9 @@ namespace TDOLeicaController
 
             appSettings = new AppSettings();
             appUtilities = new AppUtilities(appSettings);
-            appBackgroundTask = new AppBackgroundTask(appSettings, appUtilities);
+            appPort = new AppComPort();
+            appPort.ReadTimeout = 5;
+            appBackgroundTask = new AppBackgroundTask(appSettings, appUtilities, appPort);
             appMainService = new AppMainService(appSettings, appUtilities, appBackgroundTask);
 
             InitializeComponent();
@@ -82,6 +85,8 @@ namespace TDOLeicaController
             {
                 BtnStartStop.Content = "STOP";
                 readAppSettingsFromXml();
+                BtnSettings.IsEnabled = false;
+                BtnJob.IsEnabled = false;
                 appMainService.StartBackgroundService();
                 return;
             }
@@ -105,6 +110,8 @@ namespace TDOLeicaController
             Dispatcher.Invoke(() => 
             {
                 TxtStatus.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ":" + args.ProgressMessage;
+                BtnSettings.IsEnabled = true;
+                BtnJob.IsEnabled = true;
                 BtnStartStop.IsEnabled = true;
                 BtnStartStop.Content = "START";
                 if (FormClosePending) { this.Close(); }
@@ -134,6 +141,14 @@ namespace TDOLeicaController
             try
             {
                 appSettings.ReadFromXML();
+
+                appPort.PortName = appSettings.ComPortName;
+                appPort.BaudRate = appSettings.ComBaudRate;
+                appPort.Parity = appSettings.ComParity;
+                appPort.DataBits = appSettings.ComDataBits;
+                appPort.StopBits = appSettings.ComStopBits;
+                appPort.NewLine = appSettings.ComNewLine;
+
                 settingsLoaded = true;
             }
             catch (Exception exception)

@@ -60,6 +60,12 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TDOLeicaController\TDOLeicaController.csproj">
+      <Project>{f0555a37-ff09-4ff7-bbdc-f2c358f47611}</Project>
+      <Name>TDOLeicaController</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

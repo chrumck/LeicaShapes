@@ -69,11 +69,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AppBackgroundTask.cs" />
+    <Compile Include="AppComPort.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="AppMainService.cs" />
     <Compile Include="AppProgressEventArgs.cs" />
     <Compile Include="AppSettings.cs" />
     <Compile Include="AppUtilities.cs" />
-    <Compile Include="ComPortController.cs" />
+    <Compile Include="IAppPort.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

@@ -13,12 +13,14 @@ namespace TDOLeicaController
     {
         //Fields and Properties------------------------------------------------------------------------------------------------//
 
-        public string ComPort { get; set; }
+        public string ComPortName { get; set; }
         public int ComBaudRate { get; set; }
         public int ComDataBits { get; set; }
         public StopBits ComStopBits { get; set; }
         public Parity ComParity { get; set; }
         public Handshake ComHandshake { get; set; }
+        public string ComNewLine { get; set; }
+        public string ComFinalCommand { get; set; }
 
         private int maxPendingCommands;
         public int MaxPendingCommands
@@ -30,7 +32,7 @@ namespace TDOLeicaController
         public int MainLoopIntervalmSec
         {
             get { return this.mainLoopIntervalmSec; }
-            set { this.mainLoopIntervalmSec = (value >= 1 && value <= 60000) ? value : this.mainLoopIntervalmSec; }
+            set { this.mainLoopIntervalmSec = (value >= 5 && value <= 60000) ? value : this.mainLoopIntervalmSec; }
         }
 
         private int loggingLevel;
@@ -60,18 +62,8 @@ namespace TDOLeicaController
 
         public AppSettings()
         {
-            ComPort = "COM1";
-            ComBaudRate = 19200;
-            ComDataBits = 8;
-            ComStopBits = StopBits.One;
-            ComParity = Parity.None;
-            ComHandshake = Handshake.None;
-            MaxPendingCommands = 5;
-            MainLoopIntervalmSec = 10;
-            LoggingLevel = 2;
-            LogKeepAliveIntervalSeconds = 3600;
-            BckTaskMaxAllowedErrors = 10;
-            LeicaJob = new string[] {};
+            setDefaults();
+            LeicaJob = new string[] { "" };
         }
         
         //Methods--------------------------------------------------------------------------------------------------------------//
@@ -85,10 +77,13 @@ namespace TDOLeicaController
         //ReadFromXML
         public void ReadFromXML(string fileName)
         {
+            setDefaults();
+            
             var settingsFile = new XmlDocument();
             if (!File.Exists(System.AppDomain.CurrentDomain.BaseDirectory + fileName)) 
                 { throw new ArgumentException("Settings file '" + fileName + "' does not exist."); }
             settingsFile.Load(fileName);
+            
             var settingsMainNode = settingsFile.SelectSingleNode("AppSettings");
             if (settingsMainNode == null)
                 { throw new ArgumentException(fileName + " is empty of file format not correct. Settings not loaded."); }
@@ -104,7 +99,7 @@ namespace TDOLeicaController
         public void LoadLeicaJob()
         {
             var openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "csv files (*.csv)|*.csv|All files (*.*)|*.*";
+            openFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
             if (openFileDialog.ShowDialog() == true)
             {
                 LeicaJob = File.ReadAllLines(openFileDialog.FileName);
@@ -132,7 +127,25 @@ namespace TDOLeicaController
                 }
                 property.SetValue(this, int.Parse(node.InnerText), null);
             }
-        } 
+        }
+
+        //setDefaults
+        private void setDefaults()
+        {
+            ComPortName = "COM1";
+            ComBaudRate = 9600;
+            ComDataBits = 8;
+            ComStopBits = StopBits.One;
+            ComParity = Parity.None;
+            ComHandshake = Handshake.None;
+            ComNewLine = "\r\n";
+            ComFinalCommand = "%R1Q,6002:0";
+            MaxPendingCommands = 5;
+            MainLoopIntervalmSec = 10;
+            LoggingLevel = 2;
+            LogKeepAliveIntervalSeconds = 3600;
+            BckTaskMaxAllowedErrors = 10;
+        }
 
         #endregion
 

@@ -64,7 +64,7 @@ namespace TDOLeicaController
         {
             return Task.Run(() =>
             {
-                onBackgroundProgress("Background service started", 1);
+                onBackgroundProgress("Background service started", 2);
                 BackgroundTaskRunning = true;
                 bckTaskErrorCount = 0;
 
@@ -73,8 +73,8 @@ namespace TDOLeicaController
                     var timeStamp = DateTime.Now;
 
                     bool isTimeToKeepAlive = (appSettings.LogKeepAliveIntervalSeconds == 0) ? false :
-                        (timeStamp.Hour * 3600 + timeStamp.Minute * 60 + timeStamp.Second) 
-                            % appSettings.LogKeepAliveIntervalSeconds == 0;
+                        (timeStamp.Hour * 3600000 + timeStamp.Minute * 60000 + timeStamp.Second * 1000 + timeStamp.Millisecond) 
+                            % appSettings.LogKeepAliveIntervalSeconds * 1000 == 5;
                     if (isTimeToKeepAlive) { onBackgroundProgress("This is Keep Alive log entry", 10);}
 
                     try
