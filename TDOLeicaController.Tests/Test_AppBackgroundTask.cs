@@ -35,13 +35,13 @@ namespace TDOLeicaController.UnitTests
         //-------------------------------------------------------------------------------------------------------------
 
         [TestMethod]
-        public void AppBackgroundTask_opensPortIfNotOpen()
+        public void AppBackgroundTask_InitializeTask_OpensPortIfNotOpen()
         {
             //Arrange
             mockPort.Setup(x => x.IsOpen).Returns(false);
 
             //Act
-            var taskResult = appBackgroundTask.RunTask(timeStamp);
+            appBackgroundTask.InitializeTask();
 
             //Assert
             mockPort.Verify(x => x.IsOpen, Times.Once);
@@ -49,16 +49,28 @@ namespace TDOLeicaController.UnitTests
         }
 
         [TestMethod]
-        public void AppBackgroundTask_doesNotOpenIfOpen()
+        public void AppBackgroundTask_InitializeTask_doesNotOpenIfOpen()
         {
             //Arrange
 
             //Act
-            var taskResult = appBackgroundTask.RunTask(timeStamp);
+            appBackgroundTask.InitializeTask();
 
             //Assert
             mockPort.Verify(x => x.IsOpen, Times.Once);
             mockPort.Verify(x => x.Open(), Times.Never);
+        }
+
+        [TestMethod]
+        public void AppBackgroundTask_InitializeTask_setNextCommandDT()
+        {
+            //Arrange
+
+            //Act
+            appBackgroundTask.InitializeTask();
+
+            //Assert
+            Assert.IsTrue(appBackgroundTask.nextCommandDT.CompareTo(DateTime.Now.AddMilliseconds(100)) < 0);
         }
 
         [TestMethod]
@@ -67,6 +79,7 @@ namespace TDOLeicaController.UnitTests
             //Arrange
 
             //Act
+            appBackgroundTask.InitializeTask();
             var taskResult = appBackgroundTask.RunTask(timeStamp);
 
             //Assert
@@ -80,24 +93,13 @@ namespace TDOLeicaController.UnitTests
             timeStamp = timeStamp.AddDays(-10);
 
             //Act
+            appBackgroundTask.InitializeTask();
             var taskResult = appBackgroundTask.RunTask(timeStamp);
 
             //Assert
             Assert.IsTrue(taskResult.Contains(String.Empty));
         }
-
-        [TestMethod]
-        public void AppBackgroundTask_updatesNextCommandDTToTimseStamp()
-        {
-            //Arrange
-
-            //Act
-            var taskResult = appBackgroundTask.RunTask(timeStamp);
-
-            //Assert
-            Assert.IsTrue(appBackgroundTask.nextCommandDT.CompareTo(timeStamp) == 0);
-        }
-
+                
         [TestMethod]
         public void AppBackgroundTask_goesToLineOnGoTo()
         {
@@ -105,6 +107,7 @@ namespace TDOLeicaController.UnitTests
             appSettings.LeicaJob = new[] { "goTO; 1", "dummyLine1" };
             
             //Act
+            appBackgroundTask.InitializeTask();
             var taskResult = appBackgroundTask.RunTask(timeStamp);
 
             //Assert
@@ -122,6 +125,7 @@ namespace TDOLeicaController.UnitTests
             string taskResult;
             try
             {
+                appBackgroundTask.InitializeTask();
                 taskResult = appBackgroundTask.RunTask(timeStamp);
             }
             catch (InvalidOperationException exception)
@@ -142,11 +146,13 @@ namespace TDOLeicaController.UnitTests
             appSettings.LeicaJob = new[] { "goTO; 1; 100", "dummyLine1" };
 
             //Act
+            appBackgroundTask.InitializeTask();
+            var previousNextCommandDT = appBackgroundTask.nextCommandDT;
             var taskResult = appBackgroundTask.RunTask(timeStamp);
 
             //Assert
             Assert.IsTrue(taskResult.Contains("Going to line"));
-            Assert.IsTrue(timeStamp.AddMilliseconds(100).Equals(appBackgroundTask.nextCommandDT));
+            Assert.IsTrue(previousNextCommandDT.AddMilliseconds(100).Equals(appBackgroundTask.nextCommandDT));
         }
 
         [TestMethod]
@@ -155,6 +161,7 @@ namespace TDOLeicaController.UnitTests
             //Arrange
 
             //Act
+            appBackgroundTask.InitializeTask();
             var taskResult = appBackgroundTask.RunTask(timeStamp);
 
             //Assert
@@ -168,6 +175,7 @@ namespace TDOLeicaController.UnitTests
             //Arrange
 
             //Act
+            appBackgroundTask.InitializeTask();
             var taskResult = appBackgroundTask.RunTask(timeStamp);
 
             //Assert
@@ -180,6 +188,7 @@ namespace TDOLeicaController.UnitTests
             //Arrange
 
             //Act
+            appBackgroundTask.InitializeTask();
             var taskResult = appBackgroundTask.RunTask(timeStamp);
 
             //Assert
@@ -193,10 +202,12 @@ namespace TDOLeicaController.UnitTests
             appSettings.LeicaJob = new[] { "dummyCommand; dummyResponse; 100" };
 
             //Act
+            appBackgroundTask.InitializeTask();
+            var previousNextCommandDT = appBackgroundTask.nextCommandDT;
             var taskResult = appBackgroundTask.RunTask(timeStamp);
 
             //Assert
-            Assert.IsTrue(timeStamp.AddMilliseconds(100).Equals(appBackgroundTask.nextCommandDT));
+            Assert.IsTrue(previousNextCommandDT.AddMilliseconds(100).Equals(appBackgroundTask.nextCommandDT));
         }
 
          [TestMethod]
@@ -206,6 +217,7 @@ namespace TDOLeicaController.UnitTests
              mockPort.Setup(x => x.ReadLine()).Throws(new TimeoutException());
 
              //Act
+             appBackgroundTask.InitializeTask();
              var taskResult = appBackgroundTask.RunTask(timeStamp);
              var taskResult2 = appBackgroundTask.RunTask(timeStamp);
 
@@ -222,6 +234,7 @@ namespace TDOLeicaController.UnitTests
              mockPort.Setup(x => x.ReadLine()).Throws(new TimeoutException());
 
              //Act
+             appBackgroundTask.InitializeTask();
              var taskResult = appBackgroundTask.RunTask(timeStamp);
              var taskResult2 = appBackgroundTask.RunTask(timeStamp);
 
@@ -235,6 +248,7 @@ namespace TDOLeicaController.UnitTests
              //Arrange
 
              //Act
+             appBackgroundTask.InitializeTask();
              var taskResult = appBackgroundTask.RunTask(timeStamp);
              var taskResult2 = appBackgroundTask.RunTask(timeStamp);
 
@@ -252,6 +266,7 @@ namespace TDOLeicaController.UnitTests
              string taskResult, taskResult2;
              try
              {
+                 appBackgroundTask.InitializeTask();
                  taskResult = appBackgroundTask.RunTask(timeStamp);
                  taskResult2 = appBackgroundTask.RunTask(timeStamp);
              }
@@ -283,6 +298,7 @@ namespace TDOLeicaController.UnitTests
              });
 
              //Act
+             appBackgroundTask.InitializeTask();
              var taskResult = appBackgroundTask.RunTask(timeStamp);
              var taskResult2 = appBackgroundTask.RunTask(timeStamp);
              var taskResult3 = appBackgroundTask.RunTask(timeStamp);
@@ -307,6 +323,7 @@ namespace TDOLeicaController.UnitTests
              });
 
              //Act
+             appBackgroundTask.InitializeTask();
              var taskResult = appBackgroundTask.RunTask(timeStamp);
              var taskResult2 = appBackgroundTask.RunTask(timeStamp);
              var taskResult3 = appBackgroundTask.RunTask(timeStamp);

@@ -36,11 +36,16 @@ namespace TDOLeicaController
 
         //Methods--------------------------------------------------------------------------------------------------------------//
 
+        //
+        public void InitializeTask()
+        {
+            if (!appPort.IsOpen) { appPort.Open(); }
+            nextCommandDT = DateTime.Now;
+        }
+
         //RunTask
         public string RunTask(DateTime timeStamp)
         {
-            if (!appPort.IsOpen) { appPort.Open(); }
-            
             checkResponse();
 
             if (pendingCommandsNo > appSettings.MaxPendingCommands)
@@ -52,8 +57,7 @@ namespace TDOLeicaController
             if (jobRow >= appSettings.LeicaJob.Length) { return String.Empty; }
 
             if (nextCommandDT.CompareTo(timeStamp) > 0) { return String.Empty; }
-            nextCommandDT = timeStamp;
-            
+                        
             var commandParams = appSettings.LeicaJob[jobRow].Split(new[] {';'});
             if (commandParams.Length < 2 || commandParams[0] == String.Empty)
             {

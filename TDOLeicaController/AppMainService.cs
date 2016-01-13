@@ -64,6 +64,17 @@ namespace TDOLeicaController
         {
             return Task.Run(() =>
             {
+                try
+                {
+                    appBackgroundTask.InitializeTask();
+                }
+                catch (Exception exception)
+                {
+                    BackgroundTaskRunning = false;
+                    onBackgroundCancelled("Error initializing task: " + exception.GetBaseException().Message, 2);
+                    return;
+                }
+
                 onBackgroundProgress("Background service started", 2);
                 BackgroundTaskRunning = true;
                 bckTaskErrorCount = 0;
