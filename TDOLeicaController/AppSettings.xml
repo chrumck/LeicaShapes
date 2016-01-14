@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AppSettings>
+    <ComPortName>COM69</ComPortName>
+    <ComBaudRate></ComBaudRate>
+    <ComDataBits></ComDataBits>
+    <ComStopBits></ComStopBits>
+    <ComParity></ComParity>
+    <ComHandshake></ComHandshake>
+    <ComNewLine></ComNewLine>
+    <ComFinalCommand></ComFinalCommand>
+    <MaxPendingCommands></MaxPendingCommands>
+    <MainLoopIntervalmSec></MainLoopIntervalmSec>
+    <LoggingLevel>1</LoggingLevel>
+    <MainLoopIntervalmSec></MainLoopIntervalmSec>
+    <LogKeepAliveIntervalSeconds>15</LogKeepAliveIntervalSeconds>
+    <BckTaskMaxAllowedErrors></BckTaskMaxAllowedErrors>
+</AppSettings>

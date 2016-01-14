@@ -31,6 +31,8 @@ namespace TDOLeicaController
         private AppMainService appMainService;
         private AppComPort appPort;
 
+        private string currentJobName;
+
 
         //Constructors---------------------------------------------------------------------------------------------------------//
 
@@ -55,21 +57,22 @@ namespace TDOLeicaController
         //Methods--------------------------------------------------------------------------------------------------------------//
 
         //event delegate BtnSettings_Click
-        private void BtnSettings_Click(object sender, EventArgs e)
+        private void btnSettings_Click(object sender, EventArgs e)
         {
             if (readAppSettingsFromXml())
             {
-                MessageBox.Show("Settings reloaded.\nSettings can be changed in 'AppSettings.xml' file in directory:\n " +
-                    System.AppDomain.CurrentDomain.BaseDirectory, "Settings", MessageBoxButton.OK, MessageBoxImage.Information);
+                TxtStatus.Text = "Settings reloaded.\nSettings can be changed in 'AppSettings.xml' file in directory:\n " +
+                    System.AppDomain.CurrentDomain.BaseDirectory;
             }
         }
 
         //BtnJob_Click
-        private void BtnJob_Click(object sender, RoutedEventArgs e)
+        private void btnJob_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                appSettings.LoadLeicaJob();
+                currentJobName = appSettings.LoadLeicaJob();
+                TxtStatus.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": Loaded job " + currentJobName;
             }
             catch (Exception exception)
             {
@@ -78,8 +81,29 @@ namespace TDOLeicaController
             }
         }
 
+        //BtnJobReload_Click
+        private void btnJobReload_Click(object sender, RoutedEventArgs e)
+        {
+            if (String.IsNullOrEmpty(currentJobName))
+            {
+                TxtStatus.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": Nothing to reload ";
+                return;
+            }
+
+            try
+            {
+                appSettings.LoadLeicaJob(currentJobName);
+                TxtStatus.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ": Reloaded job " + currentJobName;
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show("Error reloading job: " + exception.GetBaseException().Message, "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            }
+        }
+
         //BtnStartStop_Click
-        private void BtnStartStop_Click(object sender, RoutedEventArgs e)
+        private void btnStartStop_Click(object sender, RoutedEventArgs e)
         {
             if (!appMainService.BackgroundTaskRunning)
             {
@@ -87,6 +111,8 @@ namespace TDOLeicaController
                 readAppSettingsFromXml();
                 BtnSettings.IsEnabled = false;
                 BtnJob.IsEnabled = false;
+                BtnJobReload.IsEnabled = false;
+                TxtStatus.Background = Brushes.White;
                 appMainService.StartBackgroundService();
                 return;
             }
@@ -101,6 +127,7 @@ namespace TDOLeicaController
             Dispatcher.Invoke(() =>
             {
                 TxtStatus.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ":" + args.ProgressMessage;
+                if (args.MessageCode > 1) { TxtStatus.Background = Brushes.LightGoldenrodYellow; }
             });
         }
 
@@ -112,6 +139,7 @@ namespace TDOLeicaController
                 TxtStatus.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + ":" + args.ProgressMessage;
                 BtnSettings.IsEnabled = true;
                 BtnJob.IsEnabled = true;
+                BtnJobReload.IsEnabled = true;
                 BtnStartStop.IsEnabled = true;
                 BtnStartStop.Content = "START";
                 if (FormClosePending) { this.Close(); }
@@ -119,7 +147,7 @@ namespace TDOLeicaController
         }
 
         //MainWindow_Closing
-        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void mainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (appMainService.BackgroundTaskRunning)
             {

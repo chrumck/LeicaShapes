@@ -95,17 +95,23 @@ namespace TDOLeicaController
             } 
         }
 
-        //LoadLeicaJob
-        public void LoadLeicaJob()
+        //LoadLeicaJob(string jobFileName)
+        public string LoadLeicaJob(string jobFileName)
+        {
+            LeicaJob = File.ReadAllLines(jobFileName);
+            return jobFileName;
+        }
+
+        //LoadLeicaJob()
+        public string LoadLeicaJob()
         {
             var openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
-            if (openFileDialog.ShowDialog() == true)
-            {
-                LeicaJob = File.ReadAllLines(openFileDialog.FileName);
-            }
+            if (openFileDialog.ShowDialog() == true) { return LoadLeicaJob(openFileDialog.FileName); }
+            return String.Empty;
         }
 
+        
         //Helpers--------------------------------------------------------------------------------------------------------------//
         #region Helpers
 

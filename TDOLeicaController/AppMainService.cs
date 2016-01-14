@@ -75,7 +75,7 @@ namespace TDOLeicaController
                     return;
                 }
 
-                onBackgroundProgress("Background service started", 2);
+                onBackgroundProgress("Background service started", 1);
                 BackgroundTaskRunning = true;
                 bckTaskErrorCount = 0;
 
@@ -101,14 +101,15 @@ namespace TDOLeicaController
                         bckTaskErrorCount += 1;
                         onBackgroundProgress(String.Format("Task error #{0}: {1}", bckTaskErrorCount,
                             exception.GetBaseException().Message), 2);
-                        if (appSettings.BckTaskMaxAllowedErrors != 0 &&
-                            bckTaskErrorCount > appSettings.BckTaskMaxAllowedErrors &&
-                            !cTokenSource.IsCancellationRequested)
-                        {
-                            onBackgroundProgress(bckTaskErrorCount + " task error(s) encountered. Stopping....", 2);
-                            cTokenSource.Cancel();
-                        } 
                     }
+
+                    if (appSettings.BckTaskMaxAllowedErrors != 0 &&
+                        bckTaskErrorCount > appSettings.BckTaskMaxAllowedErrors &&
+                        !cTokenSource.IsCancellationRequested)
+                    {
+                        onBackgroundProgress(bckTaskErrorCount + " task error(s) encountered. Stopping....", 2);
+                        cTokenSource.Cancel();
+                    } 
                     
                     Thread.Sleep(appSettings.MainLoopIntervalmSec);
                 }
@@ -134,7 +135,7 @@ namespace TDOLeicaController
         }
 
         // trigger ScanProgress event, trigger ScanCancelled event and write to log
-        protected virtual void onBackgroundCancelled(string cancelMessage, int messageCode = 2)
+        protected virtual void onBackgroundCancelled(string cancelMessage, int messageCode = 1)
         {
             cancelMessage = (!String.IsNullOrEmpty(cancelMessage)) ? cancelMessage : "Background service stopped";
             if (messageCode >= appSettings.LoggingLevel){ appUtilities.WriteToLog(cancelMessage); } 

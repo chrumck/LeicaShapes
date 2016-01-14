@@ -65,6 +65,7 @@ namespace TDOLeicaController
                 throw new ArgumentException(String.Format(
                     "The command line at row {0} seems to have malformed syntax or job empty.", jobRow - 1));
             }
+            for (int i = 0; i < commandParams.Length; i++) { commandParams[i] = commandParams[i].Trim(); }
 
             if (commandParams[0].ToLower() == "goto".ToLower() ) 
             {
@@ -138,7 +139,7 @@ namespace TDOLeicaController
                 return;
             }
             
-            var expectedResponse = commandResponses[0].Trim();
+            var expectedResponse = commandResponses[0];
             commandResponses.RemoveAt(0);
 
             if (!response.ToLower().Contains(expectedResponse.ToLower()))

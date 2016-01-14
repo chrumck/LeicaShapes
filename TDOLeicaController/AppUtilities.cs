@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace TDOLeicaController
 {
@@ -23,11 +24,14 @@ namespace TDOLeicaController
         //write log entry to the file GroutItToGwLog.txt
         public void WriteToLog(string logEntry)
         {
-            try
+            Task.Run(() =>
             {
-                File.AppendAllText("appLog.txt", String.Format("\n{0:yyyy-MM-dd HH:mm:ss} : {1}", DateTime.Now, logEntry));
-            }
-            catch { }
+                try
+                {
+                    File.AppendAllText("appLog.txt", String.Format("\n{0:yyyy-MM-dd HH:mm:ss.FFF} : {1}", DateTime.Now, logEntry));
+                }
+                catch { }
+            });
         }
     }
 }
